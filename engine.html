@@ -1,0 +1,56 @@
+<html>
+
+<head>
+    <title>GasMileage</title>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <style>
+        rect {
+            fill: blue;
+            stroke: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div><button><a href="index.html">Home: Overview</a></button>
+        <button><a href="cylinders.html">1. Check Out Cylinders</a></button>
+        <button><a href="manufacturer.html">2. Check Out Manufacturers</a></button>
+        <button><a href="engine.html">3. Check Out Engine Type</a></button>
+    </div>
+    <div>
+        <h2>Engine Type Impacts MPG With Electric Vehicles Being the Obvious Leader</h2>
+    </div>
+    <svg id="engineType"></svg>
+    <script>
+        d3.csv('./average_mpg_by_engine_type.csv').then(function (data) {
+            console.log(data);
+            var width = 500, height = 500, margin = 50;
+            var x = d3.scaleLinear().domain([0, 2]).range([0, width]);
+            var y = d3.scaleLinear().domain([0, 105]).range([height, 0]);
+            data_length = data.length;
+            d3.select("#engineType")
+                .attr("width", width + 2 * margin)
+                .attr("height", height + 2 * margin)
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", 25)
+                .attr("height", function (d) { return height - y(+d.AverageHighwayMPG); })
+                .attr("x", function (d, i) { return x(i); })
+                .attr("y", function (d) { return y(+d.AverageHighwayMPG); });
+            d3.select("#engineType")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .call(d3.axisLeft(y))
+            d3.select("#engineType")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+                .call(d3.axisBottom(x))
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,62 @@
+<html>
+
+<head>
+    <title>GasMileage</title>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <style>
+        rect {
+            fill: blue;
+            stroke: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div><button><a href="index.html">Home: Overview</a></button>
+        <button><a href="cylinders.html">1. Check Out Cylinders</a></button>
+        <button><a href="manufacturer.html">2. Check Out Manufacturers</a></button>
+        <button><a href="cylinders.html">3. Check Out Engine Type</a></button>
+    </div>
+    <div>
+        <h2>Number of Cylinders Has a Marked Affect on Average Highway MPG</h2>
+        <p>**0 cylinders denotes an electric vehicle</p>
+    </div>
+    <svg id="numberOfCylinders"></svg>
+    <script>
+        d3.csv('./average_mpg_by_number_of_cylinders.csv').then(function (data) {
+            var width = 500, height = 500, margin = 50;
+            var x = d3.scaleLinear().domain([-1, 12]).range([0, width]);
+            var y = d3.scaleLinear().domain([0, 102]).range([height, 0]);
+            data_length = data.length;
+            d3.select("#numberOfCylinders")
+                .attr("width", width + 2 * margin)
+                .attr("height", height + 2 * margin)
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", 25)
+                .attr("height", function (d) { return height - y(+d.AverageHighwayMPG); })
+                .attr("x", function (d, i) { return x(+d.Cylinders) - 25 / 2; })
+                .attr("y", function (d) { return y(+d.AverageHighwayMPG); });
+            d3.select("#numberOfCylinders")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .call(d3.axisLeft(y))
+            d3.select("#numberOfCylinders")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+                .call(d3.axisBottom(x))
+            d3.select("#numberOfCylinders")
+                .append("text")
+                .attr("transform",
+                    "translate(" + (margin + width / 2) + " ," + (height + 100) +")")
+                .style("text-anchor", "bottom")
+                .text("Number of Cylinders")
+        });
+    </script>
+</body>
+
+</html>

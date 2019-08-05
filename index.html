@@ -1,19 +1,174 @@
-<!DOCTYPE html>
 <html>
-    <head lang="en">
-        <meta charset="UTF-8">
-            <title>An Examination of Gas Mileage in the Western World</title>
-            </head>
-    <body>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-        </ul>
-        <div id="app">
-            
+
+<head>
+    <title>GasMileage</title>
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <style>
+        rect {
+            fill: blue;
+            stroke: black;
+        }
+    </style>
+</head>
+
+<body>
+    <div><button><a href="index.html">Home: Overview</a></button>
+        <button><a href="cylinders.html">1. Check Out Cylinders</a></button>
+        <button><a href="manufacturer.html">2. Check Out Manufacturers</a></button>
+        <button><a href="engine.html">3. Check Out Engine Type</a></button>
+    </div>
+    <div>
+        <h2>An Overview of Automobile Average MPG in the City Shows a Wide Range of Values</h2>
+        <h3>These can be studied in more detail by grouping vehicles into several categories, Engine type, Number of
+            cylinders, and Manufacturer</h3>
+    </div>
+    <div>
+        <svg id="overview"></svg>
+    </div>
+    <div>
+        <div>
+            <svg id="numberOfCylinders"></svg><br>
+            <button><a href="cylinders.html">1. Check Out Cylinders</a></button>
         </div>
-        <script src="js/route.js"></script>
-        <script src="js/router.js"></script>
-        <script src="js/app.js"></script>
-    </body>
+        <div>
+            <svg id="manufacturer"></svg><br>
+            <button><a href="manufacturer.html">2. Check Out Manufacturers</a></button>
+        </div>
+        <div>
+            <svg id="engineType"></svg><br>
+            <button><a href="engine.html">3. Check Out Engine Type</a></button>
+        </div>
+    </div>
+    <script>
+        d3.csv('./cars2017.csv').then(function (data) {
+            var width = 500, height = 500, margin = 50;
+            var x = d3.scaleLog().domain([10, 130]).range([0, width]);
+            var y = d3.scaleLog().domain([10, 130]).range([height, 0]);
+            data_length = data.length;
+            d3.select("#overview")
+                .attr("width", width + 2 * margin)
+                .attr("height", height + 2 * margin)
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .style("fill", function (d) {
+                    if (d.Fuel == 'Electricity') { return "blue" }
+                    if (d.Fuel == 'Gasoline') { return "green" }
+                    if (d.Fuel == 'Diesel') { return "red" }
+                })
+                .attr("r", 5)
+                .attr("cx", function (d, i) { return x(+d.AverageCityMPG); })
+                .attr("cy", function (d) { return y(+d.AverageHighwayMPG); });
+            d3.select("#overview")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .call(d3.axisLeft(y))
+            d3.select("#overview")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+                .call(d3.axisBottom(x))
+            d3.select("#overview")
+                .append("text")
+                .attr("transform",
+                    "translate(" + (width / 2) + " ," + (height + 90) +")")
+                .style("text-anchor", "bottom")
+                .text("y = AvgHighwayMPG, x = AvgCityMPG")
+        });
+        d3.csv('./average_mpg_by_number_of_cylinders.csv').then(function (data) {
+            var width = 200, height = 200, margin = 25;
+            var x = d3.scaleLinear().domain([-1, 12]).range([0, width]);
+            var y = d3.scaleLinear().domain([0, 102]).range([height, 0]);
+            data_length = data.length;
+            d3.select("#numberOfCylinders")
+                .attr("width", width + 2 * margin)
+                .attr("height", height + 2 * margin)
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", 10)
+                .attr("height", function (d) { return height - y(+d.AverageHighwayMPG); })
+                .attr("x", function (d, i) { return x(+d.Cylinders) - 25 / 2; })
+                .attr("y", function (d) { return y(+d.AverageHighwayMPG); });
+            d3.select("#numberOfCylinders")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .call(d3.axisLeft(y))
+            d3.select("#numberOfCylinders")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+                .call(d3.axisBottom(x))
+        });
+        d3.csv('./average_mpg_by_engine_type.csv').then(function (data) {
+            console.log(data);
+            var width = 200, height = 200, margin = 25;
+            var x = d3.scaleLinear().domain([0, 2]).range([0, width]);
+            var y = d3.scaleLinear().domain([0, 105]).range([height, 0]);
+            data_length = data.length;
+            d3.select("#engineType")
+                .attr("width", width + 2 * margin)
+                .attr("height", height + 2 * margin)
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", 25)
+                .attr("height", function (d) { return height - y(+d.AverageHighwayMPG); })
+                .attr("x", function (d, i) { return x(i); })
+                .attr("y", function (d) { return y(+d.AverageHighwayMPG); });
+            d3.select("#engineType")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .call(d3.axisLeft(y))
+            d3.select("#engineType")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+                .call(d3.axisBottom(x))
+        });
+        d3.csv('./average_mpg_by_manufacturer.csv').then(function (data) {
+            var width = 200, height = 200, margin = 25;
+            data_length = data.length;
+            var x = d3.scaleLinear().domain([0,data_length]).range([0, width]);
+            var y = d3.scaleLinear().domain([0, 102]).range([height, 0]);
+            d3.select("#manufacturer")
+                .attr("width", width + 2 * margin)
+                .attr("height", height + 2 * margin)
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .selectAll("rect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("width", 5)
+                .attr("height", function (d) { return height - y(+d.AverageHighwayMPG); })
+                .attr("x", function (d, i) { return x(i); })
+                .attr("y", function (d) { return y(+d.AverageHighwayMPG); });
+            d3.select("#manufacturer")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")")
+                .call(d3.axisLeft(y));
+            d3.select("#manufacturer")
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + (height + margin) + ")")
+                .call(d3.axisBottom(x));
+            d3.selectAll("rect")
+            .data(data)
+            .enter()
+            .append("rect")
+            .on("mouseover", function(d,i) {
+                select("#tooltip").style("left",(d3.event.pageX)+'px')
+                .style("top",(d3.event.pageY)+"px")
+                .html(d.Manufacturer + 'has an average Highway MPG of ' + d.AverageHighwayMPG);
+            });
+        });
+    </script>
+</body>
+
 </html>
